@@ -10,20 +10,13 @@ package course_scheduler;
  * @author Myk
  */
 public class Course {
-    String name, time, department, building, classroom;
-    int enrollment;
+    String name, time, department, building;
+    int classroom, enrollment;
     
-    public Course(String name) {
-        this.name = name;
-        this.department = name.split(" ")[0];
-    }
+    int crn;
+    int courseNum;
     
     public void test() {
         System.out.println("test");
-    }
-    
-    @Override
-    public String toString () {
-        return "department = " + department + "; time = " + time + "; building = " + building + "; classroom = " + classroom + "; name = " + name;
     }
 }

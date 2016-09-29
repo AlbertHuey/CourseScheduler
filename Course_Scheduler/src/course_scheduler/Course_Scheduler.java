@@ -6,7 +6,8 @@
 package course_scheduler;
 import java.io.*;
 import java.util.*;
-/**
+
+/*
  *
  * @author Myk
  */
@@ -15,10 +16,40 @@ public class Course_Scheduler {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        List preferences, assignments = new ArrayList();
-        List<Course> courses = new ArrayList();
-        List<Teacher> teachers = new ArrayList();
+    public static void main(String[] args) { 
+        //AJ DB STUFF      
+        Course testCourse = new Course();
+        testCourse.name = "Senior Design";
+        
+        Course testCourse2 = new Course();
+        testCourse2.name = "Data Structures";
+        
+        Course testCourse3 = new Course();
+        testCourse3.name = "OO Design in C++";
+        
+        Teacher prof = new Teacher();
+        prof.name = "Dr. Coleman";
+        prof.id = 12345;
+        prof.timePreference = "None";
+        prof.courseLoad = 0;
+        
+        Course course = new Course();
+        course.crn = 2;
+        course.classroom = 100;
+        course.name = "Senior Design";
+        
+        Database db = new Database();
+        db.addNewProfessor(prof);
+        //db.assignCoursetoProf(prof, testCourse);
+        //db.assignCoursetoProf(prof, testCourse2);
+        //db.assignCoursetoProf(prof, testCourse3);      
+        //db.addNewCourse(course);
+        //db.removeProfessor(prof);
+        
+        prof.name = "Dr. Newman";
+        db.alterProfessor(prof);
+        //END AJ DB STUFF
+        List courses, preferences, assignments = new ArrayList();
         String fileName1 = "src/course_scheduler/Dept1ClassData.csv";
         String fileName2 = "src/course_scheduler/Dept2ClassData.csv";
         List LinesOfFile = new ArrayList();
@@ -26,15 +57,12 @@ public class Course_Scheduler {
         LinesOfFile = readFile(fileName1);
         courses     = findCourses(LinesOfFile);
         preferences = findClassroomPreferences(LinesOfFile);
-        assignPreferences(courses, preferences);
-        teachers = findFacultyAssignments(LinesOfFile);
-        
-        printList(courses);
+        assignments = findFacultyAssignments(LinesOfFile);
     }
     
     // finds and stores all faculty assignments along with time preferences in a list
     public static List findFacultyAssignments(List list) {
-        List<Teacher> teachers = new ArrayList();
+        List assignments = new ArrayList();
         int index;
         
         // finds location of assignments in the file
@@ -43,25 +71,13 @@ public class Course_Scheduler {
         // store all assignments
         for(; index < list.size(); index++) {
             String[] tokens = list.get(index).toString().split("\n");
-            String[] subtokens = tokens[0].split(", | - ");
-
-            teachers.add(new Teacher(subtokens[0], subtokens[1], subtokens[2], subtokens[3], subtokens[4]));
+            assignments.addAll(Arrays.asList(tokens));
         }
         
-        return teachers;
-    }
-    
-    public static void assignPreferences(List<Course> courses, List<String> prefs) {
-        for(int i = 0; i < prefs.size(); i++) {
-            System.out.println(prefs.get(i));
-            for(Course ele: courses) {
-                if (prefs.get(i).equals(ele.name)) {
-                    ele.building = prefs.get(++i);
-                    ele.classroom = prefs.get(++i);
-                    //System.out.println(ele);
-                }
-            }
-        }       
+        printList(assignments);
+        System.out.println("number of assignments = " + assignments.size());
+        
+        return assignments;
     }
     
     // finds and stores all of the courses with classroom restrictions and their room/building preferences in a list
@@ -75,17 +91,18 @@ public class Course_Scheduler {
         // store all preferences
         for(; !list.get(index).equals("Faculty Assignments:"); index++) {
             String[] tokens = list.get(index).toString().split("\n");
-            String[] subtokens = tokens[0].split(", room | must be taught in ");
-
-            preferences.addAll(Arrays.asList(subtokens));
+            preferences.addAll(Arrays.asList(tokens));
         }
-
+        
+        //printList(preferences);
+        //System.out.println("number of preferences = " + preferences.size());
+        
         return preferences;
     }
     
     // finds and stores all of the courses found in the file then returns a list containing all of the courses
     public static List findCourses(List list) {
-        List<Course> courses = new ArrayList();
+        List courses = new ArrayList();
         int index;
         
         // finds the location of the courses in the file
@@ -94,12 +111,11 @@ public class Course_Scheduler {
         // starting from the location, loop until it reaches the end point (classroom preferences)
         for(; !list.get(index).equals("Classroom Preferences:"); index++) {
             String[] tokens = list.get(index).toString().split(", ");
-            
-            // creates class object and adds the values
-            for (int i = 0; i < tokens.length; i++) {
-                courses.add(new Course(tokens[i]));
-            }
+            courses.addAll(Arrays.asList(tokens));
         }
+        
+        //printList(courses);
+        //System.out.println("number of courses = " + courses.size());
         
         return courses;
     }
@@ -113,7 +129,7 @@ public class Course_Scheduler {
         try {
             FileReader fileReader = new FileReader(fileName);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
-            
+                
             // read a line, if it is not null add to list element.
             while((line = bufferedReader.readLine()) != null) {
                 if(line.isEmpty() || line.trim().equals("\n") || line.trim().equals("")) {
@@ -147,8 +163,15 @@ public class Course_Scheduler {
     
     // Searches a list for an element, returns index if found, -1 if not
     public static int isObjectInList(List list, Object target){
+        /*for(Object ele : list) {
+            if(ele.equals(target)) {
+                System.out.println("ding");
+                return true;
+            }
+        }*/
         for(int i = 0; i < list.size(); i++) {
             if (list.get(i).equals(target)) {
+                //System.out.println(list.get(i));
                 return i;
             }
         }
